@@ -28,7 +28,9 @@ app.use(morgan("tiny"))
 // REGISTER A NEW USER
 app.post("/register", (req, res) => {
     // hash password and store
-    let { username, password } = req.body;
+    let { username, password } = req.headers;
+    console.log("username ", username);
+    console.log("password ", password)
 
     if (!username) res.status(401).send("username required for signup")
     else if (!password) res.status(401).send("password required for signup")
@@ -47,7 +49,7 @@ app.post("/register", (req, res) => {
 
 // LOGIN AS A USER
 app.post("/login", (req, res) => {
-    let { username, password } = req.body
+    let { username, password } = req.headers;
 
     if (!username) res.status(401).send("username required for login")
     else if (!password) res.status(401).send("password required for login")
@@ -66,82 +68,192 @@ app.post("/login", (req, res) => {
     }
 })
 
-// $(pwd)
 
 
 ///////// ACTUAL ROUTING //////////
-// 1) SIMPLE GET ROUTE
-// NOTE: When building a server from scratch, start here to ensure your connections are good.
+/** 
+ * GET
+ * Simple root status bilboard.
+ * @param {null} void - A get request to the root to check the server status.
+*/
 app.get('/', (req, res) => {
-    // Must be included.
-    // the .send is a method of Express to return information
-    res.send('Arkham Online');
+    res.send('Arkham Server Available');
 });
 
-
+/** 
+ * GET
+ * allNodes endpoint returns all nodes within the workspace as an array.
+ * Nodes are objects.
+ * @param {string} workspace_id - The workspace UUID of the nodes you want to recall.
+*/
 app.get('/allNodes', (req, res) => {
-    ArkhamControllers.recallNodes().then(
-      (data)=>{
-          res.status(200).json(data);
-      }
-    )
+    try {
+        ArkhamControllers.recallNodes()
+        .then( (data)=>{
+              res.status(200).json(data);
+          })
+        .catch((err) => {
+            res.status(500).json({"ALL NODES RECALL ERROR": err})
+        });
+    }
+    catch (err) {
+      res.status(500).send('Server side error.');
+      console.error(err);
+    }
+    finally {
+      console.error("Unknown Error");
+    }
 });
 
+/** 
+ * GET
+ * allLinks endpoint returns all nodes within the workspace as links.
+ * @param {string} workspace_id - The workspace UUID of the nodes you want to recall.
+*/
 app.get('/allLinks', (req, res) => {
-    
 
-    ArkhamControllers.recallLinks().then(
-        (data) => {
-            res.status(200).json(data)
-        }
-    )
-})
-
-app.post('/addNode', (req, res) => {
-    let { id, name } = req.headers;
-
-    console.log(`add node: ${name}`);
-    ArkhamControllers.addNode(id, name)
-        .then((data) => {
-                console.log('post data:', data)
-                res.status(200).json(data);
-            }
-        );
+    try {
+        ArkhamControllers.recallLinks()
+            .then( (data) => {
+                res.status(200).json(data)
+            })
+            .catch((err) => {
+                res.status(500).json({"ALL LINKS RECALL ERROR": err})
+            });
+    }
+    catch (err) {
+      res.status(500).send('Server side error.');
+      console.error(err);
+    }
+    finally {
+      console.error("Unknown Error");
+    }
 });
 
-app.post('/addLink', (req, res) => {
-    let { source, target } = req.headers;
+/** 
+ * POST
+ * addNode adds a node to the database.
+ * @param {string} id - UUID of the node you want to create.
+ * @param {string} key - The key of the node. Can be any string.
+ * @param {string} value - The payload of the node. Can be any string.
+ * 
+*/
+app.post('/addNode', (req, res) => {
+    // TODO: Refractor name to key
+    // TODO: refractor in value to node
+    // TODO: Add value to node DB
+    try {
+        let { id, name } = req.headers;
+        console.log(`add node: ${name}`);
+        ArkhamControllers.addNode(id, name)
+            .then((data) => {
+                    console.log('post data:', data)
+                    res.status(200).json(data);
+            })
+            .catch((err) => {
+                res.status(500).json({"ADD NODE ERROR": err})
+            });
+    }
+    catch (err) {
+      res.status(500).send('Server side error.');
+      console.error(err);
+    }
+    finally {
+      console.error("Unknown Error");
+    }
 
-    ArkhamControllers.addLink(source, target)
-        .then((data) => {
-            res.status(200).json(data);
-        })
+
+});
+
+/** 
+ * POST
+ * addLink creates an edge (link) between two vectors (nodes).
+ * @param {string} source - UUID of start vector.
+ * @param {string} target - UUID of end vector.
+ * 
+*/
+app.post('/addLink', (req, res) => {
+    try {
+        let { source, target } = req.headers;
+
+        ArkhamControllers.addLink(source, target)
+            .then((data) => {
+                res.status(200).json(data);
+            })
+            .catch((err) => {
+                res.status(500).json({"ADD LINK ERROR": err})
+            });
+    }
+    catch (err) {
+      res.status(500).send('Server side error.');
+      console.error(err);
+    }
+    finally {
+      console.error("Unknown Error");
+    }
+
 } )
 
+/** 
+ * DELETE
+ * delLink removes an edge (link) between two vectors (nodes).
+ * NOTE: We cannot use edge IDs because of the d3 package.
+ * @param {string} source - UUID of start vector.
+ * @param {string} target - UUID of end vector.
+ * 
+*/
 app.delete('/delLink', (req, res) => {
-    let { source, target } = req.headers;
 
-    ArkhamControllers.delLink(source, target)
-        .then((data) => {
-            res.status(200).json(data);
-        });
+    try {
+        let { source, target } = req.headers;
+
+        ArkhamControllers.delLink(source, target)
+            .then((data) => {
+                res.status(200).json(data);
+            })
+            .catch((err) => {
+                res.status(500).json({"DELETE LINK ERROR": err})
+            });
+    }
+    catch (err) {
+      res.status(500).send('Server side error.');
+      console.error(err);
+    }
+    finally {
+      console.error("Unknown Error");
+    }
+    
 });
 
+/** 
+ * DELETE
+ * delNode deletes a vector (node) and all associated links.
+ * @param {string} id - UUID of vector (node).
+ * 
+*/
 app.delete('/delNode', (req, res) => {
-    let { id } = req.headers;
+    try {
+        let { id } = req.headers;
 
-    ArkhamControllers.delLinksForNode(id)
-        .then((data) => {
-            ArkhamControllers.delNode(id)
-                .then((data) => {
-                    res.status(200).json(data);
-                })
-                .catch((err) => res.status(500).json({"DELETE NODE ERROR": err}))
-        })
-        .catch((err) => {
-            res.status(500).json({"DELETE LINKS FOR NODE ERROR": err})
-        })
-
+        ArkhamControllers.delLinksForNode(id)
+            .then((data) => {
+                ArkhamControllers.delNode(id)
+                    .then((data) => {
+                        res.status(200).json(data);
+                    })
+                    .catch((err) => res.status(500).json({"DELETE NODE ERROR": err}))
+            })
+            .catch((err) => {
+                res.status(500).json({"DELETE LINKS FOR NODE ERROR": err})
+            })
+    }
+    catch (err) {
+      res.status(500).send('Server side error.');
+      console.error(err);
+    }
+    finally {
+      console.error("Unknown Error");
+    }
 });
 
 
