@@ -1,6 +1,6 @@
 import app from './app.js';
 
-const port = 8080;
+const port = 6969;
 
 // Instruct app to listen.
 app.listen(port, () => {

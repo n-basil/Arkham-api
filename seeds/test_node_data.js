@@ -8,7 +8,7 @@
   // Deletes ALL existing entries
   await knex('nodes').del()
   await knex('nodes').insert([
-    { id: "1", name: "Bruh" }, 
+    { id: "1", name: "Bruh", color: "red"}, 
     { id: "2", name: "Babe" }, 
     { id: "3", name: "Dude" }
   ]);

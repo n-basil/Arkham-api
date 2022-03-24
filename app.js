@@ -25,6 +25,8 @@ app.use(bodyParser.json());
 app.use(cors());
 app.use(morgan("tiny"))
 
+app.disable('etag') // TEMPORARY FIX TO STOP 304 ERRORS
+
 // REGISTER A NEW USER
 app.post("/register", (req, res) => {
     // hash password and store
@@ -69,7 +71,6 @@ app.post("/login", (req, res) => {
 })
 
 
-
 ///////// ACTUAL ROUTING //////////
 /** 
  * GET
@@ -87,6 +88,7 @@ app.get('/', (req, res) => {
  * @param {string} workspace_id - The workspace UUID of the nodes you want to recall.
 */
 app.get('/allNodes', (req, res) => {
+    
     try {
         ArkhamControllers.recallNodes()
         .then( (data)=>{
@@ -97,11 +99,8 @@ app.get('/allNodes', (req, res) => {
         });
     }
     catch (err) {
-      res.status(500).send('Server side error.');
+      res.status(500).send('GET ALL NODES Server side error.');
       console.error(err);
-    }
-    finally {
-      console.error("Unknown Error");
     }
 });
 
@@ -122,13 +121,91 @@ app.get('/allLinks', (req, res) => {
             });
     }
     catch (err) {
-      res.status(500).send('Server side error.');
+      res.status(500).send('GET ALL LINKS Server side error.');
       console.error(err);
     }
-    finally {
-      console.error("Unknown Error");
+});
+
+// GET SPECIFIC NODE
+app.get('/node', (req, res) => {
+    try {
+        let { id } = req.headers;
+
+        ArkhamControllers.getNode(id)
+            .then((data) => {
+                res.status(200).json(data);
+            })
+            .catch((err) => {
+                res.status(500).json({"GET NODE ERROR": err})
+            })
+    }
+    catch (err) {
+      res.status(500).send('GET NODE ERROR Server side error.');
+      console.error(err);
     }
 });
+
+// GET SPECIFIC LINK
+app.get('/link', (req, res) => {
+    try {
+        let { source, target } = req.headers;
+
+        ArkhamControllers.getLink(source, target)
+            .then((data) => {
+                res.status(200).json(data);
+            })
+            .catch((err) => {
+                res.status(500).json({"GET LINK ERROR": err})
+            });
+    }
+    catch (err) {
+      res.status(500).send('GET LINK Server side error.');
+      console.error(err);
+    }
+
+    
+});
+
+// PATCH SPECIFIC NODE
+app.patch('/node', (req, res) => {
+    try {
+        let { id, update } = req.headers;
+
+
+        ArkhamControllers.patchNode(id, update)
+            .then((data) => {
+                res.status(200).json(data);
+            })
+            .catch((err) => {
+                res.status(500).json({"PATCH NODE ERROR": err})
+            })
+    }
+    catch (err) {
+      res.status(500).send('PATCH NODE Server side error.');
+      console.error(err);
+    }
+
+})
+
+// PATCH SPECIFIC LINK
+app.patch('/link', (req, res) => {
+    try {
+        let { source, target, update } = req.headers;
+
+        ArkhamControllers.patchLink(source, target, update)
+            .then((data) => {
+                res.status(200).json(data);
+            })
+            .catch((err) => {
+                res.status(500).json({"PATCH LINK ERROR": err})
+            });
+    }
+    catch (err) {
+      res.status(500).send('PATCH LINK Server side error.');
+      console.error(err);
+    }
+
+})
 
 /** 
  * POST
@@ -138,7 +215,7 @@ app.get('/allLinks', (req, res) => {
  * @param {string} value - The payload of the node. Can be any string.
  * 
 */
-app.post('/addNode', (req, res) => {
+app.post('/node', (req, res) => {
     // TODO: Refractor name to key
     // TODO: refractor in value to node
     // TODO: Add value to node DB
@@ -155,24 +232,24 @@ app.post('/addNode', (req, res) => {
             });
     }
     catch (err) {
-      res.status(500).send('Server side error.');
+      res.status(500).send('ADD NODE Server side error.');
       console.error(err);
-    }
-    finally {
-      console.error("Unknown Error");
     }
 
 
 });
+
+//Select node. /allNodes/:id
 
 /** 
  * POST
  * addLink creates an edge (link) between two vectors (nodes).
  * @param {string} source - UUID of start vector.
  * @param {string} target - UUID of end vector.
+ * @return {object} response - you will need to do another fetch to recall the updated Node
  * 
 */
-app.post('/addLink', (req, res) => {
+app.post('/link', (req, res) => {
     try {
         let { source, target } = req.headers;
 
@@ -185,13 +262,9 @@ app.post('/addLink', (req, res) => {
             });
     }
     catch (err) {
-      res.status(500).send('Server side error.');
+      res.status(500).send('ADD LINK Server side error.');
       console.error(err);
     }
-    finally {
-      console.error("Unknown Error");
-    }
-
 } )
 
 /** 
@@ -202,7 +275,7 @@ app.post('/addLink', (req, res) => {
  * @param {string} target - UUID of end vector.
  * 
 */
-app.delete('/delLink', (req, res) => {
+app.delete('/link', (req, res) => {
 
     try {
         let { source, target } = req.headers;
@@ -216,12 +289,10 @@ app.delete('/delLink', (req, res) => {
             });
     }
     catch (err) {
-      res.status(500).send('Server side error.');
+      res.status(500).send('DELETE LINK Server side error.');
       console.error(err);
     }
-    finally {
-      console.error("Unknown Error");
-    }
+
     
 });
 
@@ -231,7 +302,7 @@ app.delete('/delLink', (req, res) => {
  * @param {string} id - UUID of vector (node).
  * 
 */
-app.delete('/delNode', (req, res) => {
+app.delete('/node', (req, res) => {
     try {
         let { id } = req.headers;
 
@@ -248,11 +319,8 @@ app.delete('/delNode', (req, res) => {
             })
     }
     catch (err) {
-      res.status(500).send('Server side error.');
+      res.status(500).send('DELETE NODE Server side error.');
       console.error(err);
-    }
-    finally {
-      console.error("Unknown Error");
     }
 });
 

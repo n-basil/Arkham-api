@@ -75,7 +75,6 @@ export default class ArkhamControllers {
     };
 
     static delNode (id) {
-        
         return localKnex
             .from('nodes')
             .where('id', id)
@@ -93,5 +92,37 @@ export default class ArkhamControllers {
         return localKnex("users")
             .insert({ username, passwordHash });
     };
+
+    static getNode(id) {
+        return localKnex
+            .select("*")
+            .from("nodes")
+            .where('id', id)
+    }
+
+    static getLink(src, tgt) {
+        return localKnex
+            .select('*')
+            .from('links')
+            .where('source', src)
+            .where('target', tgt)
+    }
+
+    static patchNode(id, update) {
+        return localKnex
+            .from('nodes')
+            .where('id', id)
+            .update(update)
+            //update should be {param: paramVal}
+    }
+
+    static patchLink(src, tgt, update) {
+        return localKnex  
+            .from('links')
+            .where('source', src)
+            .where('target', tgt)
+            .update(update)
+            //update shoudl be {param: paramVal}
+    }
 
 }
