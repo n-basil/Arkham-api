@@ -11,6 +11,7 @@
         table.string('size')
         table.string('color')
         table.string('symbolType')
+        table.string('notes')
 
         // // creation & update
         // table.timestamps(true, true);
