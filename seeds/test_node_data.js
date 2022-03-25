@@ -9,8 +9,8 @@
   await knex('nodes').del()
   await knex('nodes').insert([
     { id: "1", name: "Bruh", color: "red", symbolType: "diamond", notes: "this is a test note"}, 
-    { id: "2", name: "Babe" }, 
-    { id: "3", name: "Dude" }
+    { id: "2", name: "Babe", notes: "this is the test note for the Babe node"}, 
+    { id: "3", name: "Dude", notes: "this is the note for the Dude node" }
   ]);
 
 

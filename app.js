@@ -220,9 +220,9 @@ app.post('/node', (req, res) => {
     // TODO: refractor in value to node
     // TODO: Add value to node DB
     try {
-        let { id, name } = req.headers;
-        console.log(`add node: ${name}`);
-        ArkhamControllers.addNode(id, name)
+        let { node } = req.headers;
+        console.log("add node:", JSON.parse(node));
+        ArkhamControllers.addNode(JSON.parse(node))
             .then((data) => {
                     console.log('post data:', data)
                     res.status(200).json(data);

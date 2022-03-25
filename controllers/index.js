@@ -31,11 +31,10 @@ export default class ArkhamControllers {
     };
 
 
-    static addNode (uuid, nameInput) {
+    static addNode (node) {
+        console.log("KNEX INDEX addNODE: ", typeof node)
         return localKnex
-            .insert(
-                { id: uuid, name : nameInput }
-            )            
+            .insert({node})                   
             .from('nodes');
     };
 
