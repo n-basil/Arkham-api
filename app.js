@@ -9,7 +9,7 @@ import { hash, compare } from 'bcrypt';
 
 ///////// ENVIRONMENT PREP //////////
 // this creates the express object as an app. We can call it something else if we use it later.
-// NOTE: enusre attache the body parser and cookieParser to the object.
+// NOTE: enusre attache the body parser and cookieParser to the object. 
 const app = express();
 // const morgan = require("morgan")
 
@@ -305,9 +305,10 @@ app.delete('/link', (req, res) => {
 app.delete('/node', (req, res) => {
     try {
         let { id } = req.headers;
-
+        // Deletes links first.
         ArkhamControllers.delLinksForNode(id)
             .then((data) => {
+                // Deletes the requested node
                 ArkhamControllers.delNode(id)
                     .then((data) => {
                         res.status(200).json(data);

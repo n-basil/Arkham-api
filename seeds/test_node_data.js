@@ -16,8 +16,8 @@
 
   await knex('links').del()
   await knex('links').insert([
-    { id: "1", source: "1", target: "2"  },
-    { id: "2", source: "1", target: "3"  }
+    { source: "1", target: "2"  },
+    { source: "1", target: "3"  }
   ]);
 
 }

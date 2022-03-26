@@ -5,7 +5,7 @@
  export function up (knex){
     return knex.schema.createTable('links', (table) => {
         // id
-        table.string('id').notNullable();
+        //table.increments('id').notNullable();
         // title
         // table.string('workspace_id').references('id').inTable('workspace').notNullable().onDelete('cascade');
         // edges

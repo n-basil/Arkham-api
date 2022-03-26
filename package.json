@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "NODE_ENV=development npx jest --detectOpenHandles --watchAll",
-    "start": "nodemon index.js",
+    "start": "HOST=localhost nodemon index.js",
     "dev": "NODE_ENV=development nodemon index.js"
   },
   "dependencies": {

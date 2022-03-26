@@ -32,20 +32,19 @@ export default class ArkhamControllers {
 
 
     static addNode (node) {
-        console.log("KNEX INDEX addNODE: ", typeof node)
+        // console.log("KNEX INDEX addNODE: ", typeof node)
         return localKnex
-            .insert({node})                   
+            .insert({id: node.id, name: node.name, color: node.color, symbolType: node.symbolType, notes: node.notes, size: node.size})                   
             .from('nodes');
     };
 
     static addLink (src, tgt) {
-        const uuid = uuidv4();
+        // const uuid = uuidv4();
         // src = src ? src : 1;
         // src = tgt ? tgt : 1;
+        console.log("KNEX INDEX addLink: ", src, tgt)
         return localKnex  
-            .insert(
-                { id: uuid, source: src, target: tgt}
-            )
+            .insert({source: src, target: tgt})
             .from('links');
     };
 
@@ -87,10 +86,10 @@ export default class ArkhamControllers {
             .then((data) => data[0].passwordHash);
     };
   
-    static createUser(username, passwordHash) {
-        return localKnex("users")
-            .insert({ username, passwordHash });
-    };
+    // static createUser(username, passwordHash) {
+    //     return localKnex("users")
+    //         .insert({ username, passwordHash });
+    // };
 
     static getNode(id) {
         return localKnex
