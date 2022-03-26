@@ -79,12 +79,12 @@ export default class ArkhamControllers {
             .del();
     };
 
-    static getPasswordHashForUser(username) {
-        return localKnex("users")
-            .where({ username })
-            .select("passwordHash")
-            .then((data) => data[0].passwordHash);
-    };
+    // static getPasswordHashForUser(username) {
+    //     return localKnex("users")
+    //         .where({ username })
+    //         .select("passwordHash")
+    //         .then((data) => data[0].passwordHash);
+    // };
   
     // static createUser(username, passwordHash) {
     //     return localKnex("users")
@@ -114,13 +114,13 @@ export default class ArkhamControllers {
             //update should be {param: paramVal}
     }
 
-    static patchLink(src, tgt, update) {
-        return localKnex  
-            .from('links')
-            .where('source', src)
-            .where('target', tgt)
-            .update(update)
-            //update shoudl be {param: paramVal}
-    }
+    // static patchLink(src, tgt, update) {
+    //     return localKnex  
+    //         .from('links')
+    //         .where('source', src)
+    //         .where('target', tgt)
+    //         .update(update)
+    //         //update shoudl be {param: paramVal}
+    // }
 
 }

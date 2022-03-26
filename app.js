@@ -28,47 +28,48 @@ app.use(morgan("tiny"))
 app.disable('etag') // TEMPORARY FIX TO STOP 304 ERRORS
 
 // REGISTER A NEW USER
-app.post("/register", (req, res) => {
-    // hash password and store
-    let { username, password } = req.headers;
-    console.log("username ", username);
-    console.log("password ", password)
+// FEATURE REMOVED AAA CONTROLED THROUGH KEYCLOAK
+// app.post("/register", (req, res) => {
+//     // hash password and store
+//     let { username, password } = req.headers;
+//     console.log("username ", username);
+//     console.log("password ", password)
 
-    if (!username) res.status(401).send("username required for signup")
-    else if (!password) res.status(401).send("password required for signup")
-    else {
-        hash(password, saltRounds).then((hashedPassword) => {
-            // LOG STATEMENTS FOR TESTING
-            console.log("USERS REAL PW: ", password)
-            console.log("USERS HASHED PW: ", hashedPassword)
+//     if (!username) res.status(401).send("username required for signup")
+//     else if (!password) res.status(401).send("password required for signup")
+//     else {
+//         hash(password, saltRounds).then((hashedPassword) => {
+//             // LOG STATEMENTS FOR TESTING
+//             console.log("USERS REAL PW: ", password)
+//             console.log("USERS HASHED PW: ", hashedPassword)
 
-            ArkhamControllers.createUser(username, hashedPassword)
-                .then((data) => res.status(201).json("USER CREATED SUCCESSFULLY"))
-                .catch((err) => res.status(500).json("USER REGISTER ERROR: ", err))
-        })
-    }
-})
+//             ArkhamControllers.createUser(username, hashedPassword)
+//                 .then((data) => res.status(201).json("USER CREATED SUCCESSFULLY"))
+//                 .catch((err) => res.status(500).json("USER REGISTER ERROR: ", err))
+//         })
+//     }
+// })
 
-// LOGIN AS A USER
-app.post("/login", (req, res) => {
-    let { username, password } = req.headers;
+// // LOGIN AS A USER
+// app.post("/login", (req, res) => {
+//     let { username, password } = req.headers;
 
-    if (!username) res.status(401).send("username required for login")
-    else if (!password) res.status(401).send("password required for login")
-    else {
-        ArkhamControllers.getPasswordHashForUser(username)
-            .then((hashedPassword) => {
-                compare(password, hashedPassword)
-                    .then((isMatch) => {
-                        //SUCCESSFUL LOGIN
-                        if (isMatch) res.status(202).json("passwords match, successful login")
-                        else res.status(401).json("incorrect username or password supplied")
-                    })
-                    .catch((err) => res.status(500).json(err))
-            })
-            .catch((err) => res.status(500).json(err)) 
-    }
-})
+//     if (!username) res.status(401).send("username required for login")
+//     else if (!password) res.status(401).send("password required for login")
+//     else {
+//         ArkhamControllers.getPasswordHashForUser(username)
+//             .then((hashedPassword) => {
+//                 compare(password, hashedPassword)
+//                     .then((isMatch) => {
+//                         //SUCCESSFUL LOGIN
+//                         if (isMatch) res.status(202).json("passwords match, successful login")
+//                         else res.status(401).json("incorrect username or password supplied")
+//                     })
+//                     .catch((err) => res.status(500).json(err))
+//             })
+//             .catch((err) => res.status(500).json(err)) 
+//     }
+// })
 
 
 ///////// ACTUAL ROUTING //////////
@@ -133,7 +134,7 @@ app.get('/node', (req, res) => {
 
         ArkhamControllers.getNode(id)
             .then((data) => {
-                res.status(200).json(data);
+                res.status(201).json(data);
             })
             .catch((err) => {
                 res.status(500).json({"GET NODE ERROR": err})
@@ -210,9 +211,8 @@ app.patch('/link', (req, res) => {
 /** 
  * POST
  * addNode adds a node to the database.
- * @param {string} id - UUID of the node you want to create.
- * @param {string} key - The key of the node. Can be any string.
- * @param {string} value - The payload of the node. Can be any string.
+ * @param {string} node - Object of the node to be added.
+ * @return {object} response - The response object.
  * 
 */
 app.post('/node', (req, res) => {
@@ -225,7 +225,7 @@ app.post('/node', (req, res) => {
         ArkhamControllers.addNode(JSON.parse(node))
             .then((data) => {
                     console.log('post data:', data)
-                    res.status(200).json(data);
+                    res.status(201).json(data);
             })
             .catch((err) => {
                 res.status(500).json({"ADD NODE ERROR": err})
@@ -235,7 +235,6 @@ app.post('/node', (req, res) => {
       res.status(500).send('ADD NODE Server side error.');
       console.error(err);
     }
-
 
 });
 
@@ -282,7 +281,7 @@ app.delete('/link', (req, res) => {
 
         ArkhamControllers.delLink(source, target)
             .then((data) => {
-                res.status(200).json(data);
+                res.status(201).json(data);
             })
             .catch((err) => {
                 res.status(500).json({"DELETE LINK ERROR": err})
@@ -311,7 +310,7 @@ app.delete('/node', (req, res) => {
                 // Deletes the requested node
                 ArkhamControllers.delNode(id)
                     .then((data) => {
-                        res.status(200).json(data);
+                        res.status(201).json(data);
                     })
                     .catch((err) => res.status(500).json({"DELETE NODE ERROR": err}))
             })

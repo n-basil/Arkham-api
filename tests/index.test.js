@@ -1,9 +1,16 @@
-const express = require('express');
-const supertest = require('supertest');
+import request  from "supertest";
+import app from "../app.js";
 
-const app = require("./index.js");
+describe("The test runner", () => {
+  
+  test("should be working.", () => {
+    expect(true).toBeTruthy();
+  });
 
-describe("Test the root path", () => {
+});
+
+
+describe("The root directory", () => {
     test("should accept a request", done => {
       request(app)
         .get("/")
@@ -13,7 +20,7 @@ describe("Test the root path", () => {
         });
     });
 
-    test("should respond with Arkham Server Available", () => {
+    xtest("should respond with Arkham Server Available", () => {
         request(app)
         .get("/")
         .then(response => {
@@ -21,5 +28,5 @@ describe("Test the root path", () => {
           done();
         });
     });
+});
 
-  });
