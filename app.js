@@ -154,6 +154,7 @@ app.get('/link', (req, res) => {
         ArkhamControllers.getLink(source, target)
             .then((data) => {
                 res.status(200).json(data);
+                res.end()
             })
             .catch((err) => {
                 res.status(500).json({"GET LINK ERROR": err})

@@ -12,43 +12,43 @@ const localKnex = knex(development);
 
 export default class ArkhamControllers {
 
-    constructor(){
+    constructor() {
     };
 
 
-    static recallNodes (){
-      return localKnex
-          // Structured like a typical SQL query.
-          .select('*')
-          .from('nodes');
+    static recallNodes() {
+        return localKnex
+            // Structured like a typical SQL query.
+            .select('*')
+            .from('nodes');
     };
 
-    static recallLinks () {
-        return localKnex 
+    static recallLinks() {
+        return localKnex
             .select('source', 'target')
             // .select('*')
             .from('links');
     };
 
 
-    static addNode (node) {
+    static addNode(node) {
         // console.log("KNEX INDEX addNODE: ", typeof node)
         return localKnex
-            .insert({id: node.id, name: node.name, color: node.color, symbolType: node.symbolType, notes: node.notes, size: node.size})                   
+            .insert({ id: node.id, name: node.name, color: node.color, symbolType: node.symbolType, notes: node.notes, size: node.size })
             .from('nodes');
     };
 
-    static addLink (src, tgt) {
+    static addLink(src, tgt) {
         // const uuid = uuidv4();
         // src = src ? src : 1;
         // src = tgt ? tgt : 1;
         console.log("KNEX INDEX addLink: ", src, tgt)
-        return localKnex  
-            .insert({source: src, target: tgt})
+        return localKnex
+            .insert({ source: src, target: tgt })
             .from('links');
     };
 
-    static delLink (src, tgt){
+    static delLink(src, tgt) {
         return localKnex
             .from('links')
             .where('source', src)
@@ -63,7 +63,7 @@ export default class ArkhamControllers {
     //         .del();
     // };
 
-    static delLinksForNode (delNodeId) {
+    static delLinksForNode(delNodeId) {
         console.log(`Del Links for Node: ${delNodeId}`);
         return localKnex
             .from('links')
@@ -72,7 +72,7 @@ export default class ArkhamControllers {
             .del()
     };
 
-    static delNode (id) {
+    static delNode(id) {
         return localKnex
             .from('nodes')
             .where('id', id)
@@ -85,7 +85,7 @@ export default class ArkhamControllers {
     //         .select("passwordHash")
     //         .then((data) => data[0].passwordHash);
     // };
-  
+
     // static createUser(username, passwordHash) {
     //     return localKnex("users")
     //         .insert({ username, passwordHash });
@@ -99,18 +99,24 @@ export default class ArkhamControllers {
     }
 
     static getLink(src, tgt) {
-        if(tgt === 'sans') {
-        return localKnex
-            .table('links')
-            .join('nodes', 'links.target', '=', 'nodes.id')
-            .select('nodes.name')
-            .where('links.source', src)
+        if (tgt === 'sans') {
+            return localKnex
+                .table('links')
+                .join('nodes', 'links.target', '=', 'nodes.id')
+                .select('nodes.name', 'nodes.id')
+                .where('links.source', src)
+        } else if (src === 'sans') {
+            return localKnex
+                .table('links')
+                .join('nodes', 'links.source', '=', 'nodes.id')
+                .select('nodes.name', 'nodes.id')
+                .where('links.target', tgt)
         } else {
-        return localKnex
-            .select('*')
-            .from('links')
-            .where('source', src)
-            .where('target', tgt)
+            return localKnex
+                .select('*')
+                .from('links')
+                .where('source', src)
+                .where('target', tgt)
         }
     }
 
@@ -119,7 +125,7 @@ export default class ArkhamControllers {
             .from('nodes')
             .where('id', id)
             .update(update)
-            //update should be {param: paramVal}
+        //update should be {param: paramVal}
     }
 
     // static patchLink(src, tgt, update) {
