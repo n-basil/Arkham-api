@@ -99,11 +99,19 @@ export default class ArkhamControllers {
     }
 
     static getLink(src, tgt) {
+        if(tgt === 'sans') {
+        return localKnex
+            .table('links')
+            .join('nodes', 'links.target', '=', 'nodes.id')
+            .select('nodes.name')
+            .where('links.source', src)
+        } else {
         return localKnex
             .select('*')
             .from('links')
             .where('source', src)
             .where('target', tgt)
+        }
     }
 
     static patchNode(id, update) {
