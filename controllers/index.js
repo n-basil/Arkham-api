@@ -32,9 +32,17 @@ export default class ArkhamControllers {
 
 
     static addNode(node) {
-        // console.log("KNEX INDEX addNODE: ", typeof node)
+        console.log("KNEX INDEX addNODE: ", node.name)
+        const inputId = node.id ? node.id : uuidv4();
+        const inputName = node.name ? node.name : "no name provided";
+        const inputNotes = node.notes ? node.notes : "no notes provided";
+        const inputType = node.symbolType ? node.symbolType : "no type provided";
+        const inputColor = node.color ? node.color : null;
+        const inputSize = node.size ? node.size : null;
+
         return localKnex
-            .insert({ id: node.id, name: node.name, color: node.color, symbolType: node.symbolType, notes: node.notes, size: node.size })
+            // .insert({ id: node.id, name: node.name, color: node.color, symbolType: node.symbolType, notes: node.notes, size: node.size })
+            .insert({ id: inputId, name: inputName, color: inputColor, symbolType: inputType, notes: inputNotes, size: inputSize })
             .from('nodes');
     };
 
@@ -73,6 +81,7 @@ export default class ArkhamControllers {
     };
 
     static delNode(id) {
+        console.log("KNEX INDEX delNODE typeof: ", typeof id);
         return localKnex
             .from('nodes')
             .where('id', id)
@@ -118,23 +127,25 @@ export default class ArkhamControllers {
                 .where('source', src)
                 .where('target', tgt)
         // }
-    }
+    };
 
-    static patchNode(id, update) {
+    static patchNode(node) {
+        console.log("KNEX INDEX patchNODE: ", node)
+        const inputId = node.id ? node.id : 1;
+        const inputName = node.name ? node.name : "no name provided";
+        const inputNotes = node.notes ? node.notes : "no notes provided";
+        const inputType = node.symbolType ? node.symbolType : "no type provided";
+        const inputColor = node.color ? node.color : null;
+        const inputSize = node.size ? node.size : null;
+
+        console.log("KNEX patchNode inputName typeof: ", node.id);
+
         return localKnex
-            .from('nodes')
-            .where('id', id)
-            .update(update)
-        //update should be {param: paramVal}
-    }
+            .table('nodes')
+            .where({ id: inputId })
+            .update( node )
 
-    // static patchLink(src, tgt, update) {
-    //     return localKnex  
-    //         .from('links')
-    //         .where('source', src)
-    //         .where('target', tgt)
-    //         .update(update)
-    //         //update shoudl be {param: paramVal}
-    // }
+    };
+
 
 }

@@ -7,6 +7,10 @@ import cors from 'cors';
 import morgan from 'morgan';
 import { hash, compare } from 'bcrypt';
 import multer from 'multer';
+import Papa from 'papaparse';
+import fs from 'fs'; 
+
+//import{ fileUpload } from 'express-fileupload;'
 
 ///////// ENVIRONMENT PREP //////////
 // this creates the express object as an app. We can call it something else if we use it later.
@@ -14,9 +18,11 @@ import multer from 'multer';
 const app = express();
 
 const storage = multer.diskStorage({
-    destination: './tmpstorage',
+    destination: function (req, file, cb) {
+        cb(null, 'tmpstorage')
+    },
     filename: function (req, file, cb) {
-        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname))
+        cb(null, file.fieldname + '-' + Date.now())
     }
 })
 
@@ -31,10 +37,15 @@ const saltRounds = 12;
 // ArkhamControlelrs.createUser(var)
 
 // Middleware
+// app.use(fileUpload({
+//     createParentPath: true
+// }))
+
 app.use(bodyParser.json());
 //app.use(cookieParser());
 app.use(cors());
 app.use(morgan("tiny"))
+
 
 app.disable('etag') // TEMPORARY FIX TO STOP 304 ERRORS
 
@@ -180,16 +191,26 @@ app.get('/link', (req, res) => {
 // PATCH SPECIFIC NODE
 app.patch('/node', (req, res) => {
     try {
-        let { id, update } = req.headers;
+        let { node } = req.headers;
+        console.log("update ", node);
 
-
-        ArkhamControllers.patchNode(id, update)
+        ArkhamControllers.patchNode(JSON.parse(node))
             .then((data) => {
                 res.status(200).json(data);
             })
-            .catch((err) => {
-                res.status(500).json({"PATCH NODE ERROR": err})
-            })
+        // node = JSON.parse(node);
+        // console.log("id ", node.id);
+        // ArkhamControllers.delNode(node.id)
+        //     .then((data) => {
+        //         console.log("data from del node", data);
+        //         ArkhamControllers.addNode(node)
+        //         .then((data) => {
+        //             res.status(200).json(data);
+        //         })
+        //     })
+        //     .catch((err) => {
+        //         res.status(500).json({"PATCH NODE ERROR": err})
+        //     })
     }
     catch (err) {
       res.status(500).send('PATCH NODE Server side error.');
@@ -334,19 +355,67 @@ app.delete('/node', (req, res) => {
     }
 });
 
-app.post('/file', upload.single('fileName'), async (req, res) => {
-    const file = req.file;
-    console.log("POST req.body.file: ", req.body.file)
-    console.log("POST req.file: ", req.file)
-    console.log("POST req.files: ", req.files)
-    res.status(200).send("POST REQUEST RECEIVED AND SUCCESSFUL")
-    // try {
+app.post('/file', upload.single('avatar'), async (req, res) => {
 
-    // }
-    // catch {
 
-    // }
+    const file = req.file
+    console.log('THIS IS YOUR UPLOADED FILE: ', file)
+    try {
+        if (!file) {
+            res.status(500).json("ERROR! No files uploaded")
+        }
+        else {
+            const readStream = fs.createReadStream(file.path)
+            const test = async () => {
+                let parsedData = await readCSV(readStream)
+                return parsedData
+            }
+            const csvObject = await test();
+            console.log('AFTER TEST', csvObject.data);
+            csvObject.data.map((el) => {
+                console.log('THIS IS THE EL', el);
+                ArkhamControllers.addNode(el)
+                    .then(() => {
+                        ArkhamControllers.addLink(el.source, el.target)
+                        .then(() => {
+                            console.log('LINK COMPLETE');
+                        })
+                    })
+                
+            })
+
+
+            // data.map((el) => {
+                
+            // })
+
+            // test.then((res) => console.log("test function results: ", res))
+            // console.log("test function results: ", await test());
+            
+
+            res.redirect('http://arkhamdevops.eastus.cloudapp.azure.com:3000/workspace');
+        }
+    }
+    catch {
+        res.status(500).send("POST FILE SERVER SIDE ERROR");
+    }
 })
+
+
+const readCSV = async (filePath) => {
+    return new Promise((resolve, reject) => {
+        Papa.parse(filePath, {
+            delimiter: ",",
+            header: true,
+            worker: true,
+            skipEmptyLines: true,
+            complete: (results, file) => {resolve(results)}
+        });
+      
+    })
+};
+
+
 
 
 export default app;
