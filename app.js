@@ -6,11 +6,22 @@ import ArkhamControllers from './controllers/index.js';
 import cors from 'cors';
 import morgan from 'morgan';
 import { hash, compare } from 'bcrypt';
+import multer from 'multer';
 
 ///////// ENVIRONMENT PREP //////////
 // this creates the express object as an app. We can call it something else if we use it later.
 // NOTE: enusre attache the body parser and cookieParser to the object. 
 const app = express();
+
+const storage = multer.diskStorage({
+    destination: './tmpstorage',
+    filename: function (req, file, cb) {
+        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname))
+    }
+})
+
+const upload = multer({storage: storage})
+//const upload = multer()
 // const morgan = require("morgan")
 
 // const { hash, compare } = require("bcrypt")
@@ -163,9 +174,7 @@ app.get('/link', (req, res) => {
     catch (err) {
       res.status(500).send('GET LINK Server side error.');
       console.error(err);
-    }
-
-    
+    } 
 });
 
 // PATCH SPECIFIC NODE
@@ -324,6 +333,20 @@ app.delete('/node', (req, res) => {
       console.error(err);
     }
 });
+
+app.post('/file', upload.single('fileName'), async (req, res) => {
+    const file = req.file;
+    console.log("POST req.body.file: ", req.body.file)
+    console.log("POST req.file: ", req.file)
+    console.log("POST req.files: ", req.files)
+    res.status(200).send("POST REQUEST RECEIVED AND SUCCESSFUL")
+    // try {
+
+    // }
+    // catch {
+
+    // }
+})
 
 
 export default app;
