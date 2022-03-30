@@ -1,5 +1,10 @@
 import request  from "supertest";
+import regeneratorRuntime from "regenerator-runtime";
+// import  '@babel-core';
+import 'babel-polyfill';
+
 import app from "../app.js";
+
 
 describe("The test runner", () => {
   

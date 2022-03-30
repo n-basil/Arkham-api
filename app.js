@@ -1,4 +1,5 @@
 import express from 'express';
+import 'babel-polyfill';
 //import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import ArkhamControllers from './controllers/index.js';
@@ -17,14 +18,15 @@ import fs from 'fs';
 // NOTE: enusre attache the body parser and cookieParser to the object. 
 const app = express();
 
-const storage = multer.diskStorage({
+
+export const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, 'tmpstorage')
     },
     filename: function (req, file, cb) {
         cb(null, file.fieldname + '-' + Date.now())
     }
-})
+});
 
 const upload = multer({storage: storage})
 //const upload = multer()
@@ -135,6 +137,8 @@ app.get('/allNodes', (req, res) => {
 app.get('/allLinks', (req, res) => {
 
     try {
+        let { id } = req.headers;
+
         ArkhamControllers.recallLinks()
             .then( (data) => {
                 res.status(200).json(data)
@@ -149,24 +153,7 @@ app.get('/allLinks', (req, res) => {
     }
 });
 
-// GET SPECIFIC NODE
-app.get('/node', (req, res) => {
-    try {
-        let { id } = req.headers;
 
-        ArkhamControllers.getNode(id)
-            .then((data) => {
-                res.status(201).json(data);
-            })
-            .catch((err) => {
-                res.status(500).json({"GET NODE ERROR": err})
-            })
-    }
-    catch (err) {
-      res.status(500).send('GET NODE ERROR Server side error.');
-      console.error(err);
-    }
-});
 
 // GET SPECIFIC LINK
 app.get('/link', (req, res) => {
@@ -188,43 +175,14 @@ app.get('/link', (req, res) => {
     } 
 });
 
-// PATCH SPECIFIC NODE
-app.patch('/node', (req, res) => {
-    try {
-        let { node } = req.headers;
-        console.log("update ", node);
 
-        ArkhamControllers.patchNode(JSON.parse(node))
-            .then((data) => {
-                res.status(200).json(data);
-            })
-        // node = JSON.parse(node);
-        // console.log("id ", node.id);
-        // ArkhamControllers.delNode(node.id)
-        //     .then((data) => {
-        //         console.log("data from del node", data);
-        //         ArkhamControllers.addNode(node)
-        //         .then((data) => {
-        //             res.status(200).json(data);
-        //         })
-        //     })
-        //     .catch((err) => {
-        //         res.status(500).json({"PATCH NODE ERROR": err})
-        //     })
-    }
-    catch (err) {
-      res.status(500).send('PATCH NODE Server side error.');
-      console.error(err);
-    }
-
-})
 
 // PATCH SPECIFIC LINK
 app.patch('/link', (req, res) => {
     try {
-        let { source, target, update } = req.headers;
+        let { link } = req.headers;
 
-        ArkhamControllers.patchLink(source, target, update)
+        ArkhamControllers.patchLink(JSON.parse(link))
             .then((data) => {
                 res.status(200).json(data);
             })
@@ -268,6 +226,22 @@ app.post('/node', (req, res) => {
     }
 
 });
+// PATCH SPECIFIC NODE
+app.patch('/node', (req, res) => {
+    try {
+        let { node } = req.headers;
+        console.log("update ", node);
+
+        ArkhamControllers.patchNode(JSON.parse(node))
+            .then((data) => {
+                res.status(200).json(data);
+            })
+    }
+    catch (err) {
+      res.status(500).send('PATCH NODE Server side error.');
+      console.error(err);
+    }
+})
 
 //Select node. /allNodes/:id
 
@@ -354,11 +328,27 @@ app.delete('/node', (req, res) => {
       console.error(err);
     }
 });
+// GET SPECIFIC NODE
+app.get('/node', (req, res) => {
+    try {
+        let { id } = req.headers;
+
+        ArkhamControllers.getNode(id)
+            .then((data) => {
+                res.status(201).json(data);
+            })
+            .catch((err) => {
+                res.status(500).json({"GET NODE ERROR": err})
+            })
+    } catch (err) {
+      res.status(500).send('GET NODE ERROR Server side error.');
+      console.error(err);
+    }
+});
+
 
 app.post('/file', upload.single('avatar'), async (req, res) => {
-
-
-    const file = req.file
+    const file = req.file;
     console.log('THIS IS YOUR UPLOADED FILE: ', file)
     try {
         if (!file) {
@@ -371,6 +361,7 @@ app.post('/file', upload.single('avatar'), async (req, res) => {
                 return parsedData
             }
             const csvObject = await test();
+
             console.log('AFTER TEST', csvObject.data);
             csvObject.data.map((el) => {
                 console.log('THIS IS THE EL', el);
@@ -381,28 +372,15 @@ app.post('/file', upload.single('avatar'), async (req, res) => {
                             console.log('LINK COMPLETE');
                         })
                     })
-                
             })
-
-
-            // data.map((el) => {
-                
-            // })
-
-            // test.then((res) => console.log("test function results: ", res))
-            // console.log("test function results: ", await test());
-            
-
             res.redirect('http://arkhamdevops.eastus.cloudapp.azure.com:3000/workspace');
         }
     }
     catch {
         res.status(500).send("POST FILE SERVER SIDE ERROR");
     }
-})
-
-
-const readCSV = async (filePath) => {
+});
+export const readCSV = async (filePath) => {
     return new Promise((resolve, reject) => {
         Papa.parse(filePath, {
             delimiter: ",",
@@ -411,9 +389,35 @@ const readCSV = async (filePath) => {
             skipEmptyLines: true,
             complete: (results, file) => {resolve(results)}
         });
-      
-    })
+    });
 };
+
+app.delete('/all', (req, res) => {
+    try {
+        const { id } = req.headers;
+        if (id === undefined){
+            res.status(500).json("DELETE ALL SERVER SIDE ERROR");
+        };
+        ArkhamControllers.deleteAllNodes()
+            .then((data) => {
+                ArkhamControllers.deleteAllLinks()
+                    .then((data) => {
+                        res.status(201).json(data);
+                    })
+                    .catch((err) => res.status(500).json({"DELETE ALL LINKS ERROR": err}))
+            })
+            .catch((err) => {
+                res.status(500).json({"DELETE ALL NODES ERROR": err})
+            });
+    }
+    catch (err) {
+      res.status(500).send('DELETE ALL Server side error.');
+      console.error(err);
+    }
+})
+
+
+
 
 
 

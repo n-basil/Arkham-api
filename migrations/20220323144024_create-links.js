@@ -11,6 +11,10 @@
         // edges
         table.string('source');
         table.string('target');
+        table.string('color');
+        table.string('strokeWidth');
+        table.string('type');
+        table.string('notes');
         
         // table.string('source').references('id').inTable('nodes').notNullable().onDelete('cascade');
         // table.string('target').references('id').inTable('nodes').notNullable().onDelete('cascade');

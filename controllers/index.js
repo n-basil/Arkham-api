@@ -25,18 +25,18 @@ export default class ArkhamControllers {
 
     static recallLinks() {
         return localKnex
-            .select('source', 'target')
-            // .select('*')
+            // .select('source', 'target')
+            .select('*')
             .from('links');
     };
 
 
     static addNode(node) {
-        console.log("KNEX INDEX addNODE: ", node.name)
+        // console.log("KNEX INDEX addNODE: ", node.name)
         const inputId = node.id ? node.id : uuidv4();
-        const inputName = node.name ? node.name : "no name provided";
-        const inputNotes = node.notes ? node.notes : "no notes provided";
-        const inputType = node.symbolType ? node.symbolType : "no type provided";
+        const inputName = node.name ? node.name : "Untittled Node";
+        const inputNotes = node.notes ? node.notes : "No user notes";
+        const inputType = node.symbolType ? node.symbolType : "circle";
         const inputColor = node.color ? node.color : null;
         const inputSize = node.size ? node.size : null;
 
@@ -50,7 +50,7 @@ export default class ArkhamControllers {
         // const uuid = uuidv4();
         // src = src ? src : 1;
         // src = tgt ? tgt : 1;
-        console.log("KNEX INDEX addLink: ", src, tgt)
+        // console.log("KNEX INDEX addLink: ", src, tgt)
         return localKnex
             .insert({ source: src, target: tgt })
             .from('links');
@@ -72,7 +72,7 @@ export default class ArkhamControllers {
     // };
 
     static delLinksForNode(delNodeId) {
-        console.log(`Del Links for Node: ${delNodeId}`);
+        // console.log(`Del Links for Node: ${delNodeId}`);
         return localKnex
             .from('links')
             .where('source', delNodeId)
@@ -81,12 +81,24 @@ export default class ArkhamControllers {
     };
 
     static delNode(id) {
-        console.log("KNEX INDEX delNODE typeof: ", typeof id);
+        // console.log("KNEX INDEX delNODE typeof: ", typeof id);
         return localKnex
             .from('nodes')
             .where('id', id)
             .del();
     };
+
+    static deleteAllNodes() {
+        return localKnex
+            .from('nodes')
+            .del();
+    }
+
+    static deleteAllLinks() {
+        return localKnex  
+            .from('links')
+            .del()
+    }
 
     // static getPasswordHashForUser(username) {
     //     return localKnex("users")
@@ -130,15 +142,9 @@ export default class ArkhamControllers {
     };
 
     static patchNode(node) {
-        console.log("KNEX INDEX patchNODE: ", node)
-        const inputId = node.id ? node.id : 1;
-        const inputName = node.name ? node.name : "no name provided";
-        const inputNotes = node.notes ? node.notes : "no notes provided";
-        const inputType = node.symbolType ? node.symbolType : "no type provided";
-        const inputColor = node.color ? node.color : null;
-        const inputSize = node.size ? node.size : null;
 
-        console.log("KNEX patchNode inputName typeof: ", node.id);
+        const inputId = node.id ? node.id : 1;
+
 
         return localKnex
             .table('nodes')
@@ -146,6 +152,14 @@ export default class ArkhamControllers {
             .update( node )
 
     };
+
+    static patchLink(link) {
+        return localKnex
+            .table('links')
+            .where({source: link.source})
+            .andWhere({target: link.target})
+            .update(link)
+    }
 
 
 }

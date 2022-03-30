@@ -16,8 +16,8 @@
 
   await knex('links').del()
   await knex('links').insert([
-    { source: "1", target: "2"  },
-    { source: "1", target: "3"  }
+    { source: "1", target: "2", color: "red", strokeWidth: "1.6", type: "CURVE_SMOOTH", notes: "this is the link between Bruh and Babe"},
+    { source: "1", target: "3", strokeWidth: "3", notes: "This is the link between Bruh and Dude" }
   ]);
 
 }

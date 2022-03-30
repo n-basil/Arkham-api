@@ -1,6 +1,0 @@
-﻿,id,name,color,symbolType,notes,source,target
-,101,Batman,yellow,circle,The main character,101,102
-,102,Joker,red,diamond,Batman's number one enemy,102,101
-,103,Rachel,blue,square,Batman's love,103,101
-,104,Harley Quinn,red,diamond,Joker's love,104,102
-,105,Alfred,blue,square,Batman's butler and mentor,105,101
