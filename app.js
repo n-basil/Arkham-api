@@ -394,10 +394,7 @@ export const readCSV = async (filePath) => {
 
 app.delete('/all', (req, res) => {
     try {
-        const { id } = req.headers;
-        if (id === undefined){
-            res.status(500).json("DELETE ALL SERVER SIDE ERROR");
-        };
+
         ArkhamControllers.deleteAllNodes()
             .then((data) => {
                 ArkhamControllers.deleteAllLinks()
