@@ -2,12 +2,10 @@
 // require("dotenv").config()
 
 import 'dotenv/config';
-
+let connectionString = process.env.CONNECTION_STRING;
 /**
  * @type { Object.<string, import("knex").Knex.Config> }
  */
-
-
 
 /**
  * @type { Object.<string, import("knex").Knex.Config> }
@@ -33,18 +31,11 @@ export const staging = {
   }
 };
 export const production = {
-  client: 'postgresql',
-  connection: {
-    database: 'my_db',
-    user: 'username',
-    password: 'password'
-  },
-  pool: {
-    min: 2,
-    max: 10
-  },
+  client: 'pg',
+  connection: { connectionString, ssl: { rejectUnauthorized: false } },
+  charset: 'utf8',  
   migrations: {
-    tableName: 'knex_migrations'
+    directory: './migrations',
   }
 };
 
